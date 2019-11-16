@@ -18,7 +18,7 @@
               v-model="date"
               v-on="on"
             ></v-text-field>
-</template>
+          </template>
           <v-date-picker scrollable v-model="date">
             <v-spacer></v-spacer>
             <v-btn text @click="closeDatePicker">Cancel</v-btn>
