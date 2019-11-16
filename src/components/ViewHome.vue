@@ -27,6 +27,47 @@
         </v-dialog>
       </v-col>
     </v-row>
+    <v-row v-if="goodIngredients.length" justify="center">
+      <v-col cols="12" xl="6" lg="7" md="8">
+        <v-card>
+          <v-card-title>Available Ingredients</v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <v-list-item-group multiple v-model="selectedIngredients">
+              <v-list-item
+                v-for="(ingredient, i) in goodIngredients"
+                :key="i"
+                :value="ingredient.title"
+              >
+                <template v-slot:default="{ active }">
+                  <v-list-item-action>
+                    <v-checkbox v-model="active"></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>{{
+                      ingredient.title
+                    }}</v-list-item-title>
+                    <v-list-item-subtitle
+                      >Expired on:
+                      {{ ingredient["use-by"] }}</v-list-item-subtitle
+                    >
+                  </v-list-item-content>
+                </template>
+              </v-list-item>
+            </v-list-item-group>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              text
+              :disabled="0 === selectedIngredients.length"
+              @click="fetchPossibleRecipes"
+              >View possible recipes</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -36,7 +77,29 @@ export default {
   data: () => ({
     date: '',
     datePickerShown: false,
+    ingredients: [],
+    goodIngredients: [],
+    selectedIngredients: [],
   }),
+  mounted: function() {
+    this.fetchIngredients();
+  },
+  computed: {
+    now: function() {
+      return new Date().toISOString().substring(0, 10);
+    }
+  },
+  watch: {
+    date: function(newDate, oldDate) {
+      if (oldDate !== newDate) {
+        const best = new Date(newDate);
+        this.goodIngredients = this.ingredients.filter(ingredient => {
+          const parsedDate = new Date(ingredient["use-by"]);
+          return best <= parsedDate;
+        });
+      }
+    }
+  },
   methods: {
     closeDatePicker() {
       this.datePickerShown = false;
@@ -44,6 +107,17 @@ export default {
     setDate(value) {
       this.$refs.datepicker.save(value);
       this.closeDatePicker();
+    },
+    fetchIngredients() {
+      this.$http
+        .get("/ingredients")
+        .then(response => {
+          this.ingredients = response.data;
+          this.date = this.now; // initialize the date to today date by default
+        })
+        .catch(rejected => {
+          console.log(rejected.response.status, rejected.response.data);
+        });
     },
   }
 };
