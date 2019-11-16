@@ -68,18 +68,42 @@
         </v-card>
       </v-col>
     </v-row>
+    <v-dialog persistent v-model="recipeListShown" max-width="480">
+      <v-card>
+        <v-card-title>Possible Recipes</v-card-title>
+        <v-divider></v-divider>
+        <v-card-text style="max-height: 80vh;">
+          <recipe-list-item
+            v-for="(recipe, i) in recipes"
+            :key="i"
+            :recipe="recipe"
+          ></recipe-list-item>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="closeRecipeList">OK</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
+import RecipeListItem from "./RecipeListItem";
+
 export default {
   name: "ViewHome",
+  components: {
+    "recipe-list-item": RecipeListItem
+  },
   data: () => ({
     date: '',
     datePickerShown: false,
     ingredients: [],
     goodIngredients: [],
     selectedIngredients: [],
+    recipes: [],
+    recipeListShown: false
   }),
   mounted: function() {
     this.fetchIngredients();
@@ -104,6 +128,9 @@ export default {
     closeDatePicker() {
       this.datePickerShown = false;
     },
+    closeRecipeList() {
+      this.recipeListShown = false;
+    },
     setDate(value) {
       this.$refs.datepicker.save(value);
       this.closeDatePicker();
@@ -119,6 +146,18 @@ export default {
           console.log(rejected.response.status, rejected.response.data);
         });
     },
+    fetchPossibleRecipes() {
+      const paramValues = this.selectedIngredients.join();
+      this.$http
+        .get(`/recipes?ingredients=${paramValues}`)
+        .then(response => {
+          this.recipes = response.data;
+          this.recipeListShown = true;
+        })
+        .catch(rejected => {
+          console.log(rejected.response.status, rejected.response.data);
+        });
+    }
   }
 };
 </script>
