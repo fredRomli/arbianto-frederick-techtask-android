@@ -136,21 +136,17 @@ export default {
       this.closeDatePicker();
     },
     fetchIngredients() {
-      this.$http
-        .get("/ingredients")
-        .then(response => {
-          this.ingredients = response.data;
-          this.date = this.now; // initialize the date to today date by default
-        });
+      this.$http.get("/ingredients").then(response => {
+        this.ingredients = response.data;
+        this.date = this.now; // initialize the date to today date by default
+      });
     },
     fetchPossibleRecipes() {
       const paramValues = this.selectedIngredients.join();
-      this.$http
-        .get(`/recipes?ingredients=${paramValues}`)
-        .then(response => {
-          this.recipes = response.data;
-          this.recipeListShown = true;
-        });
+      this.$http.get(`/recipes?ingredients=${paramValues}`).then(response => {
+        this.recipes = response.data;
+        this.recipeListShown = true;
+      });
     }
   }
 };
