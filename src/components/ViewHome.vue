@@ -97,7 +97,7 @@ export default {
     "recipe-list-item": RecipeListItem
   },
   data: () => ({
-    date: '',
+    date: "",
     datePickerShown: false,
     ingredients: [],
     goodIngredients: [],
@@ -141,9 +141,6 @@ export default {
         .then(response => {
           this.ingredients = response.data;
           this.date = this.now; // initialize the date to today date by default
-        })
-        .catch(rejected => {
-          console.log(rejected.response.status, rejected.response.data);
         });
     },
     fetchPossibleRecipes() {
@@ -153,9 +150,6 @@ export default {
         .then(response => {
           this.recipes = response.data;
           this.recipeListShown = true;
-        })
-        .catch(rejected => {
-          console.log(rejected.response.status, rejected.response.data);
         });
     }
   }
